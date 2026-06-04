@@ -1094,19 +1094,23 @@ class Session {
 
 // 获取ISP信息
 async function getISPInfo() {
-    try {
-        const response = await axios.get('https://api.ip.sb/geoip', { headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36', timeout: 5000 }});
-        const data = response.data;
-        const country = data.country_code || 'Unknown';
-        const org = data.isp || 'Unknown';
-        const isp = `${country}-${org}`.replace(/[^a-zA-Z0-9\-_]/g, '_');
-        
-        log('info', `ISP info obtained: ${isp}`);
-        return isp;
-    } catch (err) {
-        log('error', `Failed to get ISP info: ${err.message}`);
-        return 'Unknown_ISP';
+  try {
+    const response1 = await axios.get('https://api.ip.sb/geoip', { headers: { 'User-Agent': 'Mozilla/5.0', timeout: 3000 }});
+    if (response1.data && response1.data.country_code && response1.data.isp) {
+      return `${response1.data.country_code}-${response1.data.isp}`.replace(/\s+/g, '_');
     }
+  } catch (error) {
+      try {
+        // 备用 ip-api.com 获取isp
+        const response2 = await axios.get('http://ip-api.com/json', { headers: { 'User-Agent': 'Mozilla/5.0', timeout: 3000 }});
+        if (response2.data && response2.data.status === 'success' && response2.data.countryCode && response2.data.org) {
+          return `${response2.data.countryCode}-${response2.data.org}`.replace(/\s+/g, '_');
+        }
+      } catch (error) {
+        // console.error('Backup API also failed');
+      }
+  }
+  return 'Unknown';
 }
 
 // 获取服务器IP
