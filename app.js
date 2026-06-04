@@ -4,6 +4,7 @@ const os = require('os');
 const fs = require('fs');
 const net = require('net');
 const dns = require('dns');
+const path = require('path');
 const http = require('http');
 const axios = require('axios');
 const { Buffer } = require('buffer');
@@ -1184,11 +1185,21 @@ const server = http.createServer((req, res) => {
         'X-Padding': generatePadding(100, 1000),
     };
 
+   // 根路径
     if (req.url === '/') {
-        res.writeHead(200, { 'Content-Type': 'text/plain' });
-        res.end('Hello, World\n');
+        const filePath = path.join(__dirname, 'index.html');
+        fs.readFile(filePath, 'utf8', (err, content) => {
+            if (err) {
+                res.writeHead(500, { 'Content-Type': 'text/plain' });
+                res.end('Internal Server Error');
+                return;
+            }
+            
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end(content);
+        });
         return;
-    } 
+    }
     
     if (req.url === `/${SUB_PATH}`) {
         const nodeName = NAME ? `${NAME}-${ISP}` : ISP;
