@@ -1,9 +1,7 @@
 {
-  "name": "node-xhttp",
+  "name": "nodejsw",
   "version": "1.0.0",
   "description": "nodejs",
-  "author": "eooce",
-  "repository": "",
   "license": "MIT",
   "private": false,
   "main": "app.js",
